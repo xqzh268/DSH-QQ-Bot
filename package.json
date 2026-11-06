@@ -1,9 +1,40 @@
 {
-  "name": "dsh-qq-bot",
+  "name": "dsh-qq",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "把 QQ（NapCat / OneBot v11）接成 DeepSeek Harness 会话通道的人格化插件",
+  "main": "./plugin/dsh-qq/lib/index.js",
+  "exports": {
+    ".": "./plugin/dsh-qq/lib/index.js",
+    "./client": "./plugin/dsh-qq/lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "plugin/dsh-qq/lib/",
+    "plugin/dsh-qq/data/",
+    "plugin/dsh-qq/cordis.patch.yml",
+    "plugin/dsh-qq/package.json",
+    "persona/",
+    "config.example.json"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./plugin/dsh-qq/cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-slots"
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xqzh268/DSH-QQ-Bot.git"
+  },
   "engines": {
     "node": ">=20"
   },

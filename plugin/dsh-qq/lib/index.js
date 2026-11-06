@@ -5,7 +5,7 @@
  * 一个抛错会把整个桌面应用启动搞挂。所以这里所有工作都扔进异步任务，
  * 失败只写日志，永远返回一个可用的 dispose。
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,6 +23,13 @@ export const name = 'dsh-qq';
 export const inject = [];
 
 const PLUGIN_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+/** GitHub / 插件管理器安装时包根在 plugin/dsh-qq 的上两级；本地复制安装则没有这份布局。 */
+function findPackageRoot() {
+  const repo = join(PLUGIN_ROOT, '..', '..');
+  if (existsSync(join(repo, 'config.example.json')) && existsSync(join(repo, 'persona'))) return repo;
+  return PLUGIN_ROOT;
+}
 
 /** 数据目录：插件配置 > DSH_QQ_HOME > 安装器写入的 project.json > $DSH_HOME/dsh-qq > ~/.dsh/dsh-qq */
 export function resolveProjectDir(rawConfig = {}) {
@@ -42,6 +49,33 @@ export function resolveProjectDir(rawConfig = {}) {
   return join(dshHome, 'dsh-qq');
 }
 
+/** 从 Git 安装时数据目录是空的，把示例配置和角色卡拷过去。已有文件不覆盖。 */
+export function seedProjectDir(projectDir, log = () => {}) {
+  try {
+    mkdirSync(projectDir, { recursive: true });
+    const src = findPackageRoot();
+    const example = join(src, 'config.example.json');
+    const cfg = join(projectDir, 'config.json');
+    if (!existsSync(cfg) && existsSync(example)) {
+      copyFileSync(example, cfg);
+      log('已创建 config.json，请在 QQ 面板里填入 OneBot token 和 QQ 号');
+    }
+    const personaSrc = join(src, 'persona');
+    const personaDest = join(projectDir, 'persona');
+    if (existsSync(personaSrc)) {
+      mkdirSync(personaDest, { recursive: true });
+      for (const name of readdirSync(personaSrc)) {
+        if (!name.endsWith('.json')) continue;
+        const dest = join(personaDest, name);
+        if (!existsSync(dest)) copyFileSync(join(personaSrc, name), dest);
+      }
+    }
+    mkdirSync(join(projectDir, 'qq-sandbox'), { recursive: true });
+  } catch (err) {
+    log('初始化数据目录失败:', err?.message ?? err);
+  }
+}
+
 export function apply(ctx, rawConfig = {}) {
   const tag = '[dsh-qq]';
   const config = typeof rawConfig === 'object' && rawConfig ? rawConfig : {};
@@ -53,6 +87,8 @@ export function apply(ctx, rawConfig = {}) {
     } catch {}
     fileLog(tag, ...args);
   };
+  seedProjectDir(projectDir, log);
+  log('数据目录', projectDir);
   let onebot = null;
   let disposed = false;
   let bootTimer = null;

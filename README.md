@@ -25,57 +25,45 @@ DeepSeek Harness 桌面应用
 
 ## 安装
 
-克隆本仓库（仓库目录同时作为配置、人设和记忆的数据目录）：
+### 方式 A：桌面应用插件面板（推荐）
+
+1. 打开 DeepSeek Harness → **插件** → 安装 → **Git 仓库**
+2. 填入 `https://github.com/xqzh268/DSH-QQ-Bot.git`
+3. 装完后按提示重启应用，侧边栏会出现「QQ」面板
+
+配置、人设和记忆默认写在 `$DSH_HOME/dsh-qq`（Windows 一般是 `%USERPROFILE%\.dsh\dsh-qq`）。首次启动会自动放一份 `config.json` 和角色卡，在 QQ 面板里填 OneBot token、主人 QQ、允许活动的群号即可。
+
+命令行等价于：
+
+```bash
+dsh plugin --profile desktop add github:xqzh268/DSH-QQ-Bot
+```
+
+桌面 profile 由 Electron 独占时，请用面板安装，不要用 CLI。
+
+### 方式 B：从源码复制进 profile
+
+适合改插件代码、或面板装不上的情况。仓库目录会同时当作数据目录：
 
 ```bash
 git clone https://github.com/xqzh268/DSH-QQ-Bot.git
 cd DSH-QQ-Bot
+node plugin/install.mjs
 ```
 
-把 `config.example.json` 复制为 `config.json`，填入 OneBot token、主人 QQ、允许活动的群号。安装脚本在还没有 `config.json` 时会自动复制一份。
-
-### 方式 A：安装脚本（推荐，适用于桌面应用）
-
-桌面 profile 通常由 Electron 宿主独占，CLI 的 `dsh plugin add` 碰不到它。脚本会自动探测 `$DSH_HOME`（未设置则 `~/.dsh`，并扫描本机其它 Harness home 作为回退），优先装进 `desktop` / `desktop*` profile：
+脚本会探测 `$DSH_HOME`（未设置则 `~/.dsh`，并扫描本机其它 Harness home），优先装进 `desktop` / `desktop*` profile。多个 profile 时显式指定：
 
 ```bash
-node plugin/install.mjs
-# 或多个 profile 时显式指定：
 node plugin/install.mjs desktop
 ```
-
-指定 Harness home：
-
-```bash
-# Windows PowerShell
-$env:DSH_HOME="C:\path\to\your\dsh"; node plugin/install.mjs
-
-# POSIX
-DSH_HOME=~/.dsh node plugin/install.mjs
-```
-
-装完后**重启 DeepSeek Harness 桌面应用**，日志里出现 `[dsh-qq] 就绪` 即成功。侧边栏会多一个「QQ」面板。
-
-### 方式 B：官方 CLI（自定义 / web profile）
-
-```bash
-dsh plugin --profile <你的profile> add ./plugin/dsh-qq
-```
-
-这种方式不会自动写入数据目录指针。请任选其一：
-
-- 设置环境变量 `DSH_QQ_HOME` 指向本仓库；或
-- 在 profile 的 `cordis.patch.yml` 里给 `dsh-qq` 行加上 `config.projectDir`；或
-- 在安装后的 `node_modules/dsh-qq/project.json` 写入 `{ "projectDir": "<本仓库绝对路径>" }`
-
-未指定时，数据目录默认为 `$DSH_HOME/dsh-qq`。
 
 卸载：
 
 ```bash
+# 面板里卸，或
+dsh plugin --profile desktop remove dsh-qq
+# 源码安装则：
 node plugin/uninstall.mjs
-# 或
-dsh plugin --profile <你的profile> remove dsh-qq
 ```
 
 ## NapCat

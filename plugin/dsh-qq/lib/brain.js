@@ -13,7 +13,7 @@
  */
 import { randomUUID } from 'node:crypto';
 import { mkdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 import { buildPrompt, buildSystemPrompt, splitMemo, splitReply } from './prompt.js';
 import { StickerStore } from './stickers.js';
 import { fetchAvatar, asksAboutAvatar } from './avatars.js';
@@ -396,7 +396,8 @@ export class Brain {
 
   /** QQ 会话的工作目录：一切都是相对的，文件工具被沙箱钉在这里 */
   workspaceDir() {
-    const dir = this.cfg.plugin?.workspaceDir ?? join(this.store.dir, 'qq-sandbox');
+    const raw = this.cfg.plugin?.workspaceDir;
+    const dir = typeof raw === 'string' && isAbsolute(raw) ? raw : join(this.store.dir, 'qq-sandbox');
     mkdirSync(dir, { recursive: true });
     return dir;
   }
