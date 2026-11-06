@@ -1,0 +1,24 @@
+node_modules/
+/data/
+/config.json
+*.log
+.DS_Store
+Thumbs.db
+
+# 本机协议端、运行时数据库、工作区
+/NapCat.Shell.Windows.Node/
+/qq-sandbox/
+*.db
+*.db-wal
+*.db-shm
+
+# 本机安装器写入的数据目录指针，不进仓库
+plugin/dsh-qq/project.json
+*.bak-*
+
+# 本机特化人设，不随插件分发
+persona/04-daughter.json
+persona/custom-*.json
+
+# 本地一次性诊断脚本
+_*.mjs

@@ -1,0 +1,168 @@
+{
+  "onebot": {
+    "listenHost": "127.0.0.1",
+    "listenPort": 7800,
+    "path": "/onebot",
+    "token": "换成你自己的一串随机字符"
+  },
+  "bot": {
+    "selfId": "小号的QQ号",
+    "ownerId": "你自己的QQ号"
+  },
+  "access": {
+    "groups": ["你的群号"],
+    "users": [],
+    "groupTrigger": "smart",
+    "keywords": ["在吗", "你怎么看", "帮我看", "求助"],
+    "replyPrivate": true,
+    "groupMemberScope": "group",
+    "followUpSeconds": 90,
+    "followUpMax": 3,
+    "pokeStaleSeconds": 90
+  },
+  "persona": {
+    "active": "persona/01-warm.json"
+  },
+  "memory": {
+    "maxEpisodes": 40,
+    "updateProfile": true
+  },
+  "proactive": {
+    "enabled": false,
+    "maxPerHour": 2,
+    "quietHours": ["01:00-08:00"],
+    "maxSelfShare": 0.25,
+    "idle": {
+      "enabled": true,
+      "minutes": 45,
+      "discover": true,
+      "skipIfUnanswered": true,
+      "maxPerDay": 2,
+      "discoverGapHours": 4
+    },
+    "pause": {
+      "enabled": true,
+      "seconds": 60,
+      "sampleRate": 0.15
+    },
+    "ambient": {
+      "enabled": false,
+      "sampleRate": 0.15,
+      "minGapMinutes": 20
+    },
+    "private": {
+      "enabled": false,
+      "idleHours": 24,
+      "maxPerDay": 1
+    },
+    "recentWindowMinutes": 30,
+    "topicGapMinutes": 20
+  },
+  "humanize": {
+    "enabled": true,
+    "debounceMs": 1800,
+    "debounceMaxMs": 6000,
+    "perCharMs": 35,
+    "minTypingMs": 700,
+    "maxTypingMs": 6500,
+    "splitProbability": 0.55,
+    "maxBubbles": 3,
+    "proactiveMaxBubbles": 2,
+    "gapPerCharMs": 60,
+    "minSplitChars": 24,
+    "gapMinMs": 400,
+    "gapMaxMs": 1600,
+    "stripPeriod": true,
+    "keepMidPeriod": 0.25,
+    "timeAware": true
+  },
+  "social": {
+    "repeat": {
+      "enabled": true,
+      "probability": 0.5,
+      "minUsers": 3,
+      "maxLen": 20,
+      "cooldownSec": 180
+    },
+    "react": {
+      "enabled": true,
+      "probability": 0.12,
+      "cooldownSec": 180
+    },
+    "pokeBack": {
+      "enabled": true,
+      "probability": 0.4,
+      "cooldownSec": 60,
+      "maxPer10Min": 3
+    }
+  },
+  "groupMemory": {
+    "enabled": true,
+    "everyMessages": 40,
+    "minIntervalMinutes": 30,
+    "maxPerDay": 12,
+    "forget": {
+      "enabled": true,
+      "idleDays": 7,
+      "keepHits": 3,
+      "maxLore": 12,
+      "maxRelations": 8,
+      "minKeep": 4,
+      "maxDormant": 40,
+      "wake": 3
+    }
+  },
+  "faces": {
+    "enabled": true,
+    "react": true,
+    "maxPerMessage": 2,
+    "cooldownMinutes": 10
+  },
+  "cleanup": {
+    "enabled": true,
+    "hedge": true,
+    "punct": true,
+    "tics": true
+  },
+  "bili": {
+    "enabled": true,
+    "discover": true,
+    "card": true,
+    "maxMinutes": 15,
+    "minPlay": 3000
+  },
+  "links": {
+    "enabled": true,
+    "xhs": true
+  },
+  "stickers": {
+    "autoSave": "stickers",
+    "visionMode": "onDemand",
+    "maxBytes": 8388608
+  },
+  "plugin": {
+    "onebotPort": 7800,
+    "workspaceDir": "项目目录下的 qq-sandbox 绝对路径",
+    "agentPreset": "qq",
+    "model": {
+      "provider": "",
+      "model": "",
+      "reasoningEffort": ""
+    }
+  },
+  "backend": {
+    "kind": "headless",
+    "dshBin": "dsh",
+    "profile": "headless",
+    "timeoutMs": 180000,
+    "concurrency": 2,
+    "env": {
+      "DEEPSEEK_API_KEY": ""
+    }
+  },
+  "limits": {
+    "perUserCooldownSec": 5,
+    "perGroupPerHour": 60,
+    "maxReplyChars": 600
+  }
+}

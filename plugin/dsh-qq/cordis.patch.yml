@@ -1,0 +1,5 @@
+# dsh-qq bundle layer: mount the QQ bridge plugin.
+# 这是随包发布的 bundle 层，不覆盖用户自己的 cordis.patch.yml。
+- insert:
+    - id: dsh-qq
+      name: 'dsh-qq'
