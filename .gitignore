@@ -16,8 +16,7 @@ Thumbs.db
 plugin/dsh-qq/project.json
 *.bak-*
 
-# 本机特化人设，不随插件分发
-persona/04-daughter.json
+# 本机临时角色卡，不随插件分发
 persona/custom-*.json
 
 # 本地一次性诊断脚本

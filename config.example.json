@@ -21,7 +21,7 @@
     "pokeStaleSeconds": 90
   },
   "persona": {
-    "active": "persona/01-warm.json"
+    "active": "persona/dafeiyu.json"
   },
   "memory": {
     "maxEpisodes": 40,

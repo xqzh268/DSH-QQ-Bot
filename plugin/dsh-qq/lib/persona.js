@@ -59,9 +59,9 @@ export class ProjectStore {
     }
   }
 
-  /** 读取某张角色卡（file 形如 persona/01-warm.json） */
+  /** 读取某张角色卡（file 形如 persona/dafeiyu.json） */
   readPersona(file) {
-    const rel = file ?? this.cfg?.persona?.active ?? 'persona/01-warm.json';
+    const rel = file ?? this.cfg?.persona?.active ?? 'persona/dafeiyu.json';
     const path = join(this.dir, rel);
     if (!existsSync(path)) throw new Error(`角色卡不存在：${path}`);
     return { file: rel, data: JSON.parse(readFileSync(path, 'utf8')) };
@@ -69,14 +69,14 @@ export class ProjectStore {
 
   /** 保存角色卡 */
   writePersona(file, data) {
-    const rel = file ?? this.cfg?.persona?.active ?? 'persona/01-warm.json';
+    const rel = file ?? this.cfg?.persona?.active ?? 'persona/dafeiyu.json';
     if (!rel.startsWith('persona/') || rel.includes('..')) throw new Error('非法路径');
     writeJson(join(this.dir, rel), data);
     return { file: rel, data };
   }
 
   persona() {
-    const rel = this.cfg?.persona?.active ?? 'persona/01-warm.json';
+    const rel = this.cfg?.persona?.active ?? 'persona/dafeiyu.json';
     const file = join(this.dir, rel);
     if (!existsSync(file)) throw new Error(`角色卡不存在：${file}`);
     return JSON.parse(readFileSync(file, 'utf8'));
@@ -155,7 +155,7 @@ export class ProjectStore {
   }
 
   /** 新建一张角色卡（复制模板或空白） */
-  createPersona({ file, from = 'persona/01-warm.json', name = '新角色' }) {
+  createPersona({ file, from = 'persona/dafeiyu.json', name = '新角色' }) {
     if (!file || !/^persona\/[A-Za-z0-9_-]+\.json$/.test(file)) throw new Error('文件名只能是 persona/xxx.json');
     const target = join(this.dir, file);
     if (existsSync(target)) throw new Error('同名角色卡已存在');

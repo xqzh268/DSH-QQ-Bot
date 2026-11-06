@@ -38,7 +38,7 @@ const DEFAULTS = {
 
   // ---- 人设与记忆 ----
   persona: {
-    active: 'persona/01-warm.json',
+    active: 'persona/dafeiyu.json',
   },
   memory: {
     // 每个用户画像的滚动摘要保留多少条

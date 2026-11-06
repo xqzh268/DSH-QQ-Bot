@@ -114,9 +114,8 @@ dsh plugin --profile <你的profile> remove dsh-qq
 
 | 文件 | 角色 | 定位 |
 |---|---|---|
-| `01-warm.json` | 阿棠 | 情绪先接住，事再慢慢说 |
-| `02-sharp.json` | 祁野 | 嘴上不饶人，事上不含糊 |
-| `03-curious.json` | 栗子 | 先问为什么，再动手 |
+| `dafeiyu.json` | 大肥鱼大王 | 混在群里的活人网友，有事说事没事扯淡 |
+| `daughter.json` | 大肥鱼闺女 | 软乎乎的小憨憨，说话慢半拍但很乖 |
 
 对照见 `persona/INDEX.md`。
 
