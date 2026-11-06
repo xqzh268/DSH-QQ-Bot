@@ -78,6 +78,7 @@ const statePayload = {
     bot: { ownerId: '136638211', selfId: '780921051' },
     plugin: { workspaceDir: 'D:\\ws' },
   },
+  onebot: { url: 'ws://127.0.0.1:7800/onebot?access_token=x', host: '127.0.0.1', port: 7800, path: '/onebot', hasToken: true },
   persona: { file: 'persona/01-warm.json' },
   personas: [{ file: 'persona/01-warm.json', name: '阿棠' }],
   memory: { profiles: [], groups: [{ groupId: '1032537893', size: 6 }] },
@@ -239,6 +240,8 @@ tabsOk === TABS.length ? ok(`${TABS.length} 个标签页都能完整渲染（含
 const joined = texts.join('|');
 const expects = [
   ['NapCat', '状态区'],
+  ['反向 WebSocket', '概览复制卡片'],
+  ['复制', '一键复制按钮'],
   ['保存角色卡', '角色页保存按钮'],
   ['保存对话规则', '对话规则页保存按钮'],
   ['保存主动发言设置', '主动发言保存按钮'],

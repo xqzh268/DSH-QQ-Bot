@@ -51,6 +51,7 @@ const safeRm = (dir) => {
       join(dir, 'config.json'),
       JSON.stringify({
         persona: { active: 'persona/p.json' },
+        onebot: { listenHost: '0.0.0.0', listenPort: 7800, path: '/onebot', token: 'secret-token' },
         access: { groups: ['1'] },
         proactive: { enabled: true, pause: { enabled: true, seconds: 60 } },
         humanize: { debounceMs: 1800 },
@@ -100,6 +101,9 @@ const safeRm = (dir) => {
     st.body.effective.social?.repeat?.probability === 0.5 && st.body.effective.groupMemory?.everyMessages === 40
       ? ok('/state 带生效的默认值（配置里没写也能显示）')
       : no('/state 缺 effective', JSON.stringify(st.body.effective));
+    st.body.onebot?.url === 'ws://127.0.0.1:7800/onebot?access_token=secret-token' && st.body.onebot.hasToken === true
+      ? ok('/state 给出可粘贴的反向 WebSocket 地址（0.0.0.0→127.0.0.1）')
+      : no('/state 缺 onebot.url', JSON.stringify(st.body.onebot));
 
     // 写配置：新增项可写、深合并不丢字段
     const w = await call('/dsh-qq/api/config', { method: 'POST', body: { social: { react: { probability: 0.3 } }, proactive: { pause: { sampleRate: 0.2 } }, groupMemory: { everyMessages: 80 } } });

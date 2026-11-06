@@ -1,6 +1,6 @@
 // OneBot 层自测：模拟 NapCat 客户端，验证事件归一化 + API 往返。
 import { WebSocket } from 'ws';
-import { OneBot, normalize, extractText, mentionsSelf } from './dsh-qq/lib/onebot.js';
+import { OneBot, normalize, extractText, mentionsSelf, buildListenUrl } from './dsh-qq/lib/onebot.js';
 
 let failures = 0;
 const ok = (m) => console.log(`  ✓ ${m}`);
@@ -10,6 +10,15 @@ const bad = (m, d = '') => {
 };
 
 // 纯函数
+buildListenUrl({ host: '0.0.0.0', port: 7800, path: '/onebot', token: 'tk' }) === 'ws://127.0.0.1:7800/onebot?access_token=tk'
+  ? ok('0.0.0.0 展示成 127.0.0.1，并带 access_token')
+  : bad('监听地址拼法', buildListenUrl({ host: '0.0.0.0', port: 7800, path: '/onebot', token: 'tk' }));
+buildListenUrl({ host: '::', port: 7800, path: 'onebot', token: '' }) === 'ws://127.0.0.1:7800/onebot'
+  ? ok('没 token 时不加查询串，path 会补上 /')
+  : bad('无 token 地址', buildListenUrl({ host: '::', port: 7800, path: 'onebot', token: '' }));
+buildListenUrl({ token: 'a b&c' }) === 'ws://127.0.0.1:7800/onebot?access_token=a%20b%26c'
+  ? ok('token 里的特殊字符会编码')
+  : bad('token 编码', buildListenUrl({ token: 'a b&c' }));
 extractText([{ type: 'at', data: { qq: '1' } }, { type: 'text', data: { text: ' 你好' } }], '1') === '你好'
   ? ok('消息段提取文本')
   : bad('消息段提取文本');
@@ -46,6 +55,7 @@ extractText([{ type: 'image', data: { sub_type: 1, summary: '[动画表情]' } }
 extractText([{ type: 'image', data: { sub_type: 0 } }], '1') === '[图片]' ? ok('普通图片仍是 [图片]') : bad('普通图片文本变了');
 
 const bot = new OneBot({ port: 7823, path: '/onebot', token: 'tk', log: () => {} });
+bot.listenUrl() === 'ws://127.0.0.1:7823/onebot?access_token=tk' ? ok('实例 listenUrl 含端口和 token') : bad('listenUrl', bot.listenUrl());
 await bot.start();
 
 const ws = new WebSocket('ws://127.0.0.1:7823/onebot?access_token=tk');

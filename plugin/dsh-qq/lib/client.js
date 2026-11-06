@@ -149,6 +149,9 @@ position:relative;container-type:inline-size;box-sizing:border-box;height:100%;m
 .qq_hero.bad .qq_hero_ic{color:var(--qq-warn)}
 .qq_hero_t{font-size:16px;font-weight:650}
 .qq_hero_s{font-size:12.5px;color:var(--qq-sub);margin-top:2px}
+.qq_copy{display:flex;gap:8px;align-items:stretch}
+.qq_copy .qq_input{flex:1;min-width:0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;letter-spacing:.01em}
+.qq_copy .qq_btn{flex:none;white-space:nowrap}
 .qq_stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .qq_stat{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:13px;border:1px solid var(--qq-line);background:var(--qq-layer);text-align:start;font:inherit;color:inherit;cursor:pointer;transition:border-color .15s,transform .15s,background .15s}
 .qq_stat:hover{border-color:color-mix(in srgb,var(--qq-accent) 55%,transparent);background:color-mix(in srgb,var(--qq-accent) 5%,var(--qq-layer));transform:translateY(-1px)}
@@ -240,6 +243,7 @@ position:relative;container-type:inline-size;box-sizing:border-box;height:100%;m
 			cpu: ['M7 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z', 'M9.5 9.5h5v5h-5z', 'M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3'],
 			check: ['M20 6 9 17l-5-5'],
 			plug: ['M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0z', 'M12 17v4'],
+			copy: ['M9 3h6a1 1 0 0 1 1 1v2H8V4a1 1 0 0 1 1-1z', 'M8 6h8v2H8z', 'M7 8H5.5A1.5 1.5 0 0 0 4 9.5v11A1.5 1.5 0 0 0 5.5 22h9A1.5 1.5 0 0 0 16 20.5V18', 'M8.5 8h10A1.5 1.5 0 0 1 20 9.5v11a1.5 1.5 0 0 1-1.5 1.5H8.5A1.5 1.5 0 0 1 7 20.5v-11A1.5 1.5 0 0 1 8.5 8z'],
 			search: ['M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z', 'm20 20-3.8-3.8'],
 			users: ['M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z', 'M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6', 'M16.5 4.4a3.5 3.5 0 0 1 0 6.7M18 14.3c2 .7 3.5 2.6 3.5 5.7'],
 		};
@@ -1068,6 +1072,32 @@ position:relative;container-type:inline-size;box-sizing:border-box;height:100%;m
 			}
 
 			const online = Boolean(state.stats?.online);
+			const wsUrl = state.onebot?.url || 'ws://127.0.0.1:7800/onebot';
+			const copyListenUrl = async () => {
+				const text = wsUrl;
+				let copied = false;
+				try {
+					const clip = window.navigator?.clipboard || (typeof navigator !== 'undefined' && navigator.clipboard);
+					if (clip?.writeText) {
+						await clip.writeText(text);
+						copied = true;
+					}
+				} catch {}
+				if (!copied) {
+					try {
+						const ta = document.createElement('textarea');
+						ta.value = text;
+						ta.setAttribute('readonly', '');
+						ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+						document.body.appendChild(ta);
+						ta.select();
+						copied = document.execCommand('copy');
+						document.body.removeChild(ta);
+					} catch {}
+				}
+				if (copied) flash('ok', '已复制反向 WebSocket 地址，去 NapCat 里粘贴即可');
+				else flash('err', '复制失败，请手动选中地址再复制');
+			};
 			const personaName = state.persona?.name ?? '(未加载)';
 			const num = (value, onChange, extra) =>
 				h('input', { className: 'qq_input', type: 'number', value, onChange: (e) => onChange(e.target.value), ...(extra ?? {}) });
@@ -1100,9 +1130,37 @@ position:relative;container-type:inline-size;box-sizing:border-box;height:100%;m
 								{ className: 'qq_hero_s' },
 								online
 									? `${personaName} 正在值班，当前有 ${state.stats?.sessions ?? 0} 个活跃会话。`
-									: '检查 NapCat 是否在运行，并确认它的反向 WebSocket 地址指向本插件。',
+									: '把下面的地址填进 NapCat 的反向 WebSocket，消息格式选 array。先起本插件，再让 NapCat 连上来。',
 							),
 						),
+					),
+					h(
+						Card,
+						{
+							title: '反向 WebSocket',
+							desc: '复制后粘贴到 NapCat → 网络配置 → WebSocket 客户端（反向 WS）的 URL。',
+						},
+						h(
+							'div',
+							{ className: 'qq_copy' },
+							h('input', {
+								className: 'qq_input',
+								readOnly: true,
+								value: wsUrl,
+								spellCheck: false,
+								onFocus: (e) => e.target.select?.(),
+								'aria-label': '反向 WebSocket 地址',
+							}),
+							h(
+								'button',
+								{ type: 'button', className: 'qq_btn primary', onClick: copyListenUrl },
+								h(Icon, { name: 'copy', size: 14 }),
+								'复制',
+							),
+						),
+						state.onebot?.hasToken === false
+							? h('div', { className: 'qq_note warn', style: { marginTop: 10 } }, '还没设 onebot.token。建议设一串随机字符，两边填一样的，避免本机其它程序冒充 NapCat。')
+							: h('div', { className: 'qq_hint', style: { marginTop: 8 } }, '消息格式必须是 array。改过 token 或端口后，这里会跟着变，再复制一次即可。'),
 					),
 					h(
 						'div',

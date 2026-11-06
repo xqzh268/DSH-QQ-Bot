@@ -7,6 +7,16 @@ import { createWebSocketServer } from './ws.js';
 import { stickerName } from './imgname.js';
 import { describeFaceSeg } from './faces.js';
 
+/** NapCat「反向 WebSocket」要填的地址。0.0.0.0 对客户端没意义，展示成 127.0.0.1。 */
+export function buildListenUrl({ host = '127.0.0.1', port = 7800, path = '/onebot', token = '' } = {}) {
+  const h = !host || host === '0.0.0.0' || host === '::' ? '127.0.0.1' : host;
+  const p = String(path || '/onebot');
+  const pathname = p.startsWith('/') ? p : `/${p}`;
+  const base = `ws://${h}:${Number(port) || 7800}${pathname}`;
+  const tok = String(token ?? '');
+  return tok ? `${base}?access_token=${encodeURIComponent(tok)}` : base;
+}
+
 export class OneBot {
   constructor({ host = '127.0.0.1', port, path = '/onebot', token = '', log = console.log }) {
     this.host = host;
@@ -26,6 +36,10 @@ export class OneBot {
   get connected() {
     const conn = this.server?.connection?.();
     return Boolean(conn && !conn.closed);
+  }
+
+  listenUrl() {
+    return buildListenUrl({ host: this.host, port: this.port, path: this.path, token: this.token });
   }
 
   onEvent(fn) {

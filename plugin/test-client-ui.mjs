@@ -112,6 +112,7 @@ try {
     join(dir, 'config.json'),
     JSON.stringify({
       persona: { active: 'persona/p.json' },
+      onebot: { listenHost: '0.0.0.0', listenPort: 7811, path: '/onebot', token: 'ui-token' },
       access: { groups: ['1'], groupTrigger: 'at' },
       proactive: { enabled: true, maxPerHour: 4, quietHours: [], pause: { enabled: true, seconds: 60 }, ambient: { enabled: false, sampleRate: 0.15 } },
       humanize: { enabled: true },
@@ -123,6 +124,15 @@ try {
     cfg: store.cfg,
     persona: { name: '小鱼' },
     qqAgents: new Set(),
+    onebot: {
+      host: '0.0.0.0',
+      port: 7811,
+      path: '/onebot',
+      token: 'ui-token',
+      listenUrl() {
+        return 'ws://127.0.0.1:7811/onebot?access_token=ui-token';
+      },
+    },
     ambient: { db, stats: {}, snapshot: () => [], settings: { pause: { enabled: true, seconds: 60, sampleRate: null }, ambient: { sampleRate: 0.15 } } },
   };
   brain.groupMemory = new GroupMemory({ brain, db, log: () => {} });
@@ -171,10 +181,18 @@ try {
     head: { appendChild: (el) => styleEls.set(el.id, el) },
   };
   let loaded = null;
+  let clipboard = '';
   globalThis.window = {
     __ModuleLoader__: { load: (m) => (loaded = m) },
     setTimeout: (fn, ms) => setTimeout(fn, ms).unref?.() ?? 0,
     clearTimeout,
+    navigator: {
+      clipboard: {
+        writeText: async (t) => {
+          clipboard = t;
+        },
+      },
+    },
   };
 
   const { React, mount } = makeReact();
@@ -220,6 +238,18 @@ try {
   };
   const diskCfg = () => JSON.parse(readFileSync(join(dir, 'config.json'), 'utf8'));
   const flashText = (t) => findAll(t, (n) => n.type === 'div' && String(n.props.className).startsWith('qq_msg')).map(textOf).join('|');
+
+  cardTitles(tree).includes('反向 WebSocket') ? ok('概览页有反向 WebSocket 卡片') : no('缺反向 WS 卡片', JSON.stringify(cardTitles(tree)));
+  const wsInput = findAll(tree, (n) => n.type === 'input' && String(n.props['aria-label'] ?? '').includes('反向 WebSocket'))[0];
+  wsInput?.props.value === 'ws://127.0.0.1:7811/onebot?access_token=ui-token'
+    ? ok('概览页展示可复制的反向 WS 地址（含 token）')
+    : no('地址不对', String(wsInput?.props.value));
+  const copyBtn = button(tree, '复制');
+  copyBtn ? ok('概览页有一键复制按钮') : no('没有复制按钮');
+  await copyBtn?.props.onClick?.();
+  tree = await rerenderTree();
+  clipboard === 'ws://127.0.0.1:7811/onebot?access_token=ui-token' ? ok('点击复制写入剪贴板') : no('没复制到剪贴板', clipboard);
+  /已复制/.test(flashText(tree)) ? ok('复制成功有提示') : no('没有复制提示', flashText(tree));
 
   // ---------- 拟人化页 ----------
   tree = await goTab('拟人化');

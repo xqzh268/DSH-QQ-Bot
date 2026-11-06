@@ -8,6 +8,7 @@
 import { readFileSync } from 'node:fs';
 import { QQ_TOOL_ALLOWLIST } from './guard.js';
 import { validateConfigPatch, applyConfigPatch } from './confpatch.js';
+import { buildListenUrl } from './onebot.js';
 
 const MUTATING = new Set([
   '/dsh-qq/api/config',
@@ -128,6 +129,27 @@ export function installApi(ctx, { store, brain, log }) {
     }
   };
 
+  function onebotListen() {
+    const ob = brain.onebot;
+    if (ob && (ob.port || ob.listenUrl)) {
+      return {
+        url: typeof ob.listenUrl === 'function' ? ob.listenUrl() : buildListenUrl(ob),
+        host: ob.host ?? '127.0.0.1',
+        port: ob.port ?? 7800,
+        path: ob.path ?? '/onebot',
+        hasToken: Boolean(ob.token),
+      };
+    }
+    const cfg = store.cfg ?? {};
+    const spec = {
+      host: cfg.onebot?.listenHost ?? '127.0.0.1',
+      port: cfg.plugin?.onebotPort ?? cfg.onebot?.listenPort ?? 7800,
+      path: cfg.onebot?.path ?? '/onebot',
+      token: cfg.onebot?.token ?? '',
+    };
+    return { url: buildListenUrl(spec), host: spec.host, port: spec.port, path: spec.path, hasToken: Boolean(spec.token) };
+  }
+
   // 状态总览
   route('/dsh-qq/api/state', (_req, res) => {
     const cfg = store.cfg ?? {};
@@ -139,6 +161,7 @@ export function installApi(ctx, { store, brain, log }) {
     json(res, 200, {
       ok: true,
       persona,
+      onebot: onebotListen(),
       config: {
         bot: cfg.bot ?? {},
         access: cfg.access ?? {},
